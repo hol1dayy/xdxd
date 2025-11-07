@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Получение ссылки</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    --bg: rgb(225,201,248);
+    --accent: #9b5de5;
+    --accent-light: #b182f0;
+    --text: #3b2e52;
+}
+
+body {
+    background: var(--bg);
+    font-family: "Inter", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 92%;
+    max-width: 330px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 22px;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 24px rgba(155, 93, 229, 0.15);
+    text-align: center;
+}
+
+h1 { font-size: 18px; margin-bottom: 18px; font-weight: 600; color: var(--text); }
+
+input {
+    width: 95%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(205,169,255,0.6);
+    margin-bottom: 14px;
+    transition: 0.3s;
+    background: #fff;
+}
+
+button {
+    width: 100%;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s ease;
+    box-shadow: 0 4px 12px rgba(155,93,229,0.3);
+}
+button:hover { background: var(--accent-light); }
+button:active { transform: scale(0.96); }
+
+.reset-btn {
+    margin-top: 14px;
+    background: rgba(255,255,255,0.95);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+}
+
+#progress-text { margin-top: 22px; font-size: 16px; font-weight: 600; color: var(--text); }
+
+.progress-container {
+    display: flex;
+    width: 100%;
+    height: 25px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--accent);
+    margin-top: 10px;
+    background: #fff;
+}
+
+.progress-segment {
+    flex: 1;
+    border-right: 1px solid rgba(205,169,255,0.55);
+    transition: background 0.6s ease;
+}
+.progress-segment:last-child { border-right: none; }
+.filled { background: var(--accent); }
+
+.toast {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: white;
+    padding: 11px 16px;
+    border-radius: 12px;
+    opacity: 0;
+    transition: 0.4s;
+}
+.toast.show { opacity: 1; }
+
+/* --- МОДАЛЬНОЕ ОКНО --- */
+.modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background:white;
+    padding:20px;
+    border-radius:16px;
+    text-align:center;
+    width:90%;
+    max-width:330px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+}
+.modal-content img {
+    width:100%;
+    border-radius:14px;
+    margin-bottom:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Введи код чтобы получить ссылку</h1>
+
+    <input type="text" id="codeInput" placeholder="Введите код...">
+    <button onclick="checkCode()">получить ссылку</button>
+
+    <div id="progress-text">Это твой прогресс)</div>
+    <div class="progress-container" id="progressBar"></div>
+
+    <button class="reset-btn" onclick="resetProgress()">сбросить</button>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- МОДАЛЬНОЕ ОКНО -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <img src="myphoto.jpg" alt="Фото">
+        <button onclick="openLink()">👉тык👈</button>
+    </div>
+</div>
+
+<script>
+const codes = ["22122024","22222222","33333333","44444444","55555555","66666666","77777777"];
+const link = "https://drive.google.com/file/d/1vhaOlp6Rkb_sRwVfPj40Y2pX1awiN5Y5/view?usp=drivesdk";
+
+function loadProgress(){ return JSON.parse(localStorage.getItem("progressCodes") || "[]"); }
+function saveProgress(p){ localStorage.setItem("progressCodes", JSON.stringify(p)); }
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000); }
+
+function updateProgressBar(){
+    const p = loadProgress();
+    const bar = document.getElementById("progressBar");
+    bar.innerHTML = "";
+    for (let i = 0; i < 7; i++){
+        const seg = document.createElement("div");
+        seg.classList.add("progress-segment");
+        bar.appendChild(seg);
+        if(i < p.length) setTimeout(()=>seg.classList.add("filled"), i*140);
+    }
+}
+
+function checkCode(){
+    const input = document.getElementById("codeInput").value.trim();
+    const p = loadProgress();
+
+    if (codes[p.length] === input){
+        p.push(input);
+        saveProgress(p);
+        updateProgressBar();
+        document.getElementById("imageModal").style.display = "flex"; // вместо перехода
+    } else toast("Неправильный код ✖️");
+
+    document.getElementById("codeInput").value = "";
+}
+
+function openLink(){ window.location.href = link; }
+function resetProgress(){ localStorage.removeItem("progressCodes"); updateProgressBar(); toast("Прогресс сброшен 🔄"); }
+
+updateProgressBar();
+</script>
+
+</body>
+</html>
