@@ -158,7 +158,15 @@ button:active { transform: scale(0.96); }
 
 <script>
 const codes = ["22122024","25012025","33333333","44444444","55555555","66666666","77777777"];
-const link = ["https://drive.google.com/file/d/1aLVoLgjvS0LAu7rkqGAzuPWksBLYPZuj/view?usp=sharing","https://drive.google.com/file/d/1aX8Oblhfk35PX2sQroLWs5CLZY6QOXeL/view?usp=sharing"];
+const link = [
+    "https://drive.google.com/file/d/1aLVoLgjvS0LAu7rkqGAzuPWksBLYPZuj/view?usp=sharing",
+    "https://drive.google.com/file/d/1aX8Oblhfk35PX2sQroLWs5CLZY6QOXeL/view?usp=sharing",
+    "",
+    "",
+    "",
+    "",
+    ""
+];
 
 function loadProgress(){ return JSON.parse(localStorage.getItem("progressCodes") || "[]"); }
 function saveProgress(p){ localStorage.setItem("progressCodes", JSON.stringify(p)); }
