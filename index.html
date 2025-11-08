@@ -160,7 +160,7 @@ button:active { transform: scale(0.96); }
 const codes = ["22122024","25012025","33333333","44444444","55555555","66666666","77777777"];
 const link = [
     "https://drive.google.com/file/d/1aLVoLgjvS0LAu7rkqGAzuPWksBLYPZuj/view?usp=sharing",
-    "https://drive.google.com/file/d/1aX8Oblhfk35PX2sQroLWs5CLZY6QOXeL/view?usp=sharing",
+    "https://drive.google.com/file/d/1aX8Oblhfk35PX2sQroLWs5CLZY6QOXeL/view?usp=drive_link",
     "",
     "",
     "",
@@ -198,7 +198,10 @@ function checkCode(){
     document.getElementById("codeInput").value = "";
 }
 
-function openLink(){ window.location.href = link; }
+function openLink(){
+    const p = loadProgress();      
+    window.location.href = links[p.length - 1]; 
+}
 function resetProgress(){ localStorage.removeItem("progressCodes"); updateProgressBar(); toast("Прогресс сброшен 🔄"); }
 
 updateProgressBar();
