@@ -200,7 +200,7 @@ function checkCode(){
 
 function openLink(){
     const p = loadProgress();      
-    window.location.href = links[p.length - 1]; 
+    window.location.href = link[p.length - 1]; 
 }
 function resetProgress(){ localStorage.removeItem("progressCodes"); updateProgressBar(); toast("Прогресс сброшен 🔄"); }
 
