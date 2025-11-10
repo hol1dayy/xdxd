@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -35,9 +35,10 @@ body {
     text-align: center;
 }
 
-h1 { font-size: 18px; margin-bottom: 18px; font-weight: 600; color: var(--text); }
+/* кнопки и поля */
+h1, h2 { color: var(--text); font-weight: 600; }
 
-input {
+input, textarea {
     width: 95%;
     padding: 12px;
     font-size: 16px;
@@ -46,7 +47,10 @@ input {
     margin-bottom: 14px;
     transition: 0.3s;
     background: #fff;
+    box-sizing: border-box;
 }
+
+textarea { resize: vertical; min-height: 200px; }
 
 button {
     width: 100%;
@@ -59,17 +63,18 @@ button {
     cursor: pointer;
     transition: 0.25s ease;
     box-shadow: 0 4px 12px rgba(155,93,229,0.3);
+    margin-top: 6px;
 }
 button:hover { background: var(--accent-light); }
 button:active { transform: scale(0.96); }
 
 .reset-btn {
-    margin-top: 14px;
     background: rgba(255,255,255,0.95);
     border: 2px solid var(--accent);
     color: var(--accent);
 }
 
+/* прогресс */
 #progress-text { margin-top: 22px; font-size: 16px; font-weight: 600; color: var(--text); }
 
 .progress-container {
@@ -82,7 +87,6 @@ button:active { transform: scale(0.96); }
     margin-top: 10px;
     background: #fff;
 }
-
 .progress-segment {
     flex: 1;
     border-right: 1px solid rgba(205,169,255,0.55);
@@ -91,6 +95,7 @@ button:active { transform: scale(0.96); }
 .progress-segment:last-child { border-right: none; }
 .filled { background: var(--accent); }
 
+/* тост */
 .toast {
     position: fixed;
     bottom: 22px;
@@ -105,7 +110,7 @@ button:active { transform: scale(0.96); }
 }
 .toast.show { opacity: 1; }
 
-/* --- МОДАЛЬНОЕ ОКНО --- */
+/* модалка */
 .modal {
     position: fixed;
     top: 0; left: 0;
@@ -129,12 +134,42 @@ button:active { transform: scale(0.96); }
     border-radius:14px;
     margin-bottom:15px;
 }
+
+/* секция секретика */
+#secret-section { display: none; }
+
+#output {
+    margin-top: 14px;
+    padding: 14px;
+    font-size: 15px;
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    background: #fff;
+    text-align: left;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    letter-spacing: -0.02em;
+    min-height: 120px;
+}
+.enc {
+    color: #000;
+    background: rgba(255, 77, 77, 0.3);
+    border-radius: 4px;
+    padding: 1px 2px;
+}
+.dec {
+    color: #000;
+    background: rgba(106, 255, 106, 0.3);
+    border-radius: 4px;
+    padding: 1px 2px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- 🟣 ОСНОВНАЯ ЧАСТЬ -->
+<div class="container" id="main-section">
     <h1>Введи код чтобы получить ссылку</h1>
 
     <input type="text" id="codeInput" placeholder="Введите код...">
@@ -144,11 +179,10 @@ button:active { transform: scale(0.96); }
     <div class="progress-container" id="progressBar"></div>
 
     <button class="reset-btn" onclick="resetProgress()">сбросить</button>
+    <button class="reset-btn" onclick="showSecret()">Секретиккк 🔒</button>
 </div>
 
-<div id="toast" class="toast"></div>
-
-<!-- МОДАЛЬНОЕ ОКНО -->
+<!-- 🟣 МОДАЛЬНОЕ ОКНО -->
 <div id="imageModal" class="modal">
     <div class="modal-content">
         <img src="myphoto.jpg" alt="Фото">
@@ -156,7 +190,32 @@ button:active { transform: scale(0.96); }
     </div>
 </div>
 
+<!-- 🟣 СЕКРЕТНЫЙ РАЗДЕЛ -->
+<div class="container" id="secret-section">
+    <h2>Секретиккк 🔐</h2>
+
+    <label>Зашифрованный текст:</label>
+    <textarea id="cipher" readonly>
+FAaPkJxkBoxutqvTeqJPvTuqmTHdLTuqJMPJxdutqvTKqmuJZTGuMGTqHCmcvPKqAukTMZZZZZZZtqYTFAaPkHKCqkPJqJqATJxcQuGcuvqJuAdvTRTqgxPYPqkxTaToqYTajccqZTGkuaxcZTktqxNqBqvuGKqvTHTAMcGZPfqmHcGtqkTxqKquABqJuoMPJqZqxumuqkqvuxaTtqcqAHKqvuGKqvNqBkcAcvJKqkJuRTqvcGBxqMuauFq25tqGBqaPFkuqgxTqGuqJMPJxdutqJMPJxduqZTGuMGTfqKqkTTmsuqxPZqxumKqHCmHCtqMxTqZPYujjtqDTMBqkJuRAPqmNxdqJqxTmToqaKATvtqDTMBqMxTmqxNqHuQPHPqBqvuGKqGPqZTHuGKDqcqKqFPYBJZPHqxumuqYPHdjNqkqkTHTJNtqDTMBqTmGcvPxdqxumKqZauYZT-ZauYZTtqDTMBqBxZGBxdJKqkqxumKqcqMBkJxkTkPxdqxkToqJPvNoqaTAGToqAHKqvuGKqGPqJkuxuqFPYPDtqTsBsPxdqxumKtqvTKqaTAGPKfqYaToAuxqGuJZTHdZTqHuxtqxNqmBAuLdqTJxPkPxdJKqGPqGTMdtqcqvNqmBAuvqGPJHPQAPxdJKqZPQAToqvcGBxToqAaBRqJqAaBRTvtqZPZqvNqgxTqBvuuvEqPqYTxTvqvNqJVuAuvJKtqmBAuvqQcxdqkvuJxutqYaTJNYPxdJKqcqFPJNYPxdqkvuJxutqmBAuvqAaBRqAaBRBqRTxTkcxdquABtqAuHcxdqkvuJxuqATvPLGcoqmNxtqJTFAPkPxdqGPLqJTmJxkuGGNoqBCxfqmHcGtqZPZqkJeqxPZcqZHPJJGTqMxTqvNqmBABsuuqAaBRqAHKqAaBRPtqPDBuuGTqgxTq-qHCmcxdqxumKtqcqmNxdqHCmcvNvqkqTxkuxf
+    </textarea>
+
+    <label>Введи код (они такие же):</label>
+    <input id="codeSecret">
+
+    <button onclick="decode()">Расшифровать</button>
+    <button onclick="resetSecret()">Сбросить</button>
+
+    <h3 style="color:var(--text); font-size:16px; margin-top:16px;">Текущий результат:</h3>
+    <div id="output"></div>
+
+    <button onclick="copyResult()">Копировать результат</button>
+    <button class="reset-btn" onclick="backToMain()">⬅ Назад</button>
+</div>
+
+<div id="toast" class="toast"></div>
+
 <script>
+/* ---------- ОСНОВНОЙ РАЗДЕЛ ---------- */
 const codes = ["22122024","25012025","08032025","06042025","55555555","66666666","77777777"];
 const link = [
     "https://drive.google.com/file/d/1aLVoLgjvS0LAu7rkqGAzuPWksBLYPZuj/view?usp=sharing",
@@ -192,19 +251,108 @@ function checkCode(){
         p.push(input);
         saveProgress(p);
         updateProgressBar();
-        document.getElementById("imageModal").style.display = "flex"; // вместо перехода
+        document.getElementById("imageModal").style.display = "flex";
     } else toast("Неправильный код ✖️");
 
     document.getElementById("codeInput").value = "";
 }
 
 function openLink(){
-    const p = loadProgress();      
-    window.location.href = link[p.length - 1]; 
+    const p = loadProgress();
+    window.location.href = link[p.length - 1];
 }
 function resetProgress(){ localStorage.removeItem("progressCodes"); updateProgressBar(); toast("Прогресс сброшен 🔄"); }
 
 updateProgressBar();
+
+/* ---------- ЗАКРЫТИЕ МОДАЛКИ ПО КЛИКУ ВНЕ ---------- */
+const modal = document.getElementById("imageModal");
+modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+        modal.style.display = "none";
+    }
+});
+
+/* ---------- ПЕРЕКЛЮЧЕНИЕ МЕЖДУ РАЗДЕЛАМИ ---------- */
+function showSecret(){
+    document.getElementById("main-section").style.display = "none";
+    document.getElementById("secret-section").style.display = "block";
+}
+function backToMain(){
+    document.getElementById("secret-section").style.display = "none";
+    document.getElementById("main-section").style.display = "block";
+}
+
+/* ---------- СЕКРЕТИК ---------- */
+const mapping = {
+'а':'P','б':'m','в':'k','г':'R','д':'A','е':'u','ё':'e','ж':'Q','з':'F','и':'c','й':'o','к':'Z','л':'H',
+'м':'v','н':'G','о':'T','п':'Y','р':'a','с':'J','т':'x','у':'B','ф':'n','х':'D','ц':'j','ч':'M','ш':'L',
+'щ':'s','ъ':'V','ы':'N','ь':'d','э':'g','ю':'C','я':'K',',':'t','!':'E',' ':'q','–':'w',')':'f'
+};
+const reverseMap = {};
+for (let k in mapping) reverseMap[mapping[k]] = k;
+
+const cipherText = document.getElementById("cipher").value.trim();
+let revealed = Array(cipherText.length).fill(false);
+let removeHighlight = false;
+
+const decodePercents = {
+    "22122024": 0.15,
+    "25012025": 0.20,
+    "08032025": 0.30,
+    "06042025": 0.35,
+    "55555555": 0.40,
+    "66666666": 0.45,
+    "77777777": 1.00
+};
+
+function decode() {
+    let code = document.getElementById("codeSecret").value.trim();
+    if (!decodePercents[code]) return;
+
+    let percent = decodePercents[code];
+    removeHighlight = (code === "77777777");
+
+    revealed = Array(cipherText.length).fill(false);
+    let toReveal = Math.floor(cipherText.length * percent);
+
+    let allIndexes = Array.from(cipherText).map((_, i) => i);
+    for (let i = 0; i < toReveal && allIndexes.length > 0; i++) {
+        let randIndex = Math.floor(Math.random() * allIndexes.length);
+        let pos = allIndexes.splice(randIndex, 1)[0];
+        revealed[pos] = true;
+    }
+
+    updateOutput();
+}
+
+function updateOutput() {
+    let html = "";
+    for (let i = 0; i < cipherText.length; i++) {
+        let encoded = cipherText[i];
+        let decoded = reverseMap[encoded] || encoded;
+
+        if (removeHighlight) {
+            html += decoded;
+        } else if (revealed[i] && decoded) {
+            html += `<span class="dec">${decoded}</span>`;
+        } else {
+            html += `<span class="enc">${encoded}</span>`;
+        }
+    }
+    document.getElementById("output").innerHTML = html;
+}
+
+function resetSecret() {
+    revealed = Array(cipherText.length).fill(false);
+    removeHighlight = false;
+    document.getElementById("output").innerHTML = "";
+    document.getElementById("codeSecret").value = "";
+}
+
+function copyResult() {
+    navigator.clipboard.writeText(document.getElementById("output").innerText);
+}
 </script>
 
 </body>
